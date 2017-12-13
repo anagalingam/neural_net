@@ -1,5 +1,6 @@
 # Function to parse the input files
 import numpy as np
+import scipy.special
 
 def parseFile( fileName , fileType ):
     if( fileType != "data" and fileType != "weights" ):
@@ -35,7 +36,7 @@ def parseFile( fileName , fileType ):
     return fileParams, weights_hidden, weights_out
 
 def sigmoid( x ):
-    return 1/(1+np.exp(-x))
+    return scipy.special.expit( x )
 
 def sigmoidPrime( x ):
     return sigmoid(x) * (1 - sigmoid(x))

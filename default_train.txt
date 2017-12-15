@@ -1,0 +1,6 @@
+datasets/drugs/weights/init.txt
+datasets/drugs/data/train.txt
+datasets/drugs/weights/trained.txt
+100
+0.1
+

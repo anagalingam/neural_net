@@ -19,13 +19,13 @@ while( initObj is None ):
         print "Invalid weights file!\n"
 
 while( testObj is None ):
-    testFile = raw_input("Enter the name of the training data file: ")
+    testFile = raw_input("Enter the name of the testing data file: ")
     testObj = utils.parseFile(testFile, "data")
     if( testObj is None ):
         print "Invalid data file!\n"
 
 while( resFile is None ):
-    resFileInput = raw_input("Enter the name of the trained weights output file: ")
+    resFileInput = raw_input("Enter the name results output file: ")
 #    if( os.access(resFileInput, os.W_OK) ):
     resFile = resFileInput 
 #    else:
@@ -41,9 +41,9 @@ out_layer = np.zeros( initObj[0][2] )
 in2h_weights = initObj[1]
 h2o_weights = initObj[2]
 
-num_data = trainObj[0][0]
-features = trainObj[1]
-targets = trainObj[2]
+num_data = testObj[0][0]
+features = testObj[1]
+targets = testObj[2]
 
 contingency = np.zeros( (len(out_layer), 4) )   # Each class has array [A,B,C,D]
 
@@ -68,24 +68,39 @@ for data in range(0, num_data):
             out_layer[out_node] = utils.sigmoid( out_accumulator[out_node] )
             # Increment the appropriate contingency table entry
             if(out_layer[out_node] >= 0.5):
-                if( targets[data] > 0.5 ):
+                if( targets[data][out_node] > 0.5 ):
                     contingency[out_node][0] += 1
                 else:
                     contingency[out_node][1] += 1
             else:
-                if( targets[data] > 0.5 ):
+                if( targets[data][out_node] > 0.5 ):
                     contingency[out_node][2] += 1
                 else:
                     contingency[out_node][3] += 1
 
 #----------------------------------------------------------------------------
+## Test data performance metrics
+
+class_stats = np.zeros( (len(out_layer), 4) )
+for class_num in range(0, len(out_layer)):
+    class_stats[class_num] = utils.getTrainStats(contingency[class_num])
+
+contingency_global = np.sum(contingency,0)
+micro_stats = utils.getTrainStats(contingency_global)
+
+macro_stats = np.zeros(4)
+macro_stats[0] = np.mean(class_stats[:,0])  # Accuracy
+macro_stats[1] = np.mean(class_stats[:,1])  # Precision
+macro_stats[2] = np.mean(class_stats[:,2])  # Recall
+macro_stats[3] = 2*macro_stats[1]*macro_stats[2]/(macro_stats[1]+macro_stats[2])     #F1
+
+#----------------------------------------------------------------------------
 ## Write the trained weights output file
 
 with open(resFile, 'w') as file:
-    file.write(' '.join('%s' % ii for ii in initObj[0]))
-    for hidden_node in range(0, initObj[0][1]):
-        file.write('\n' + ' '.join('%.3f' % ii for ii in in2h_weights[hidden_node]))
-    for out_node in range(0, initObj[0][2]):
-        file.write('\n' + ' '.join('%.3f' % ii for ii in h2o_weights[out_node]))
-
+    for class_num in range(0, len(out_layer)):
+        file.write(' '.join('%d' % ii for ii in contingency[class_num]) + ' ')
+        file.write(' '.join('%.3f' % ii for ii in class_stats[class_num]) + '\n')
+    file.write(' '.join('%.3f' % ii for ii in micro_stats) + '\n')
+    file.write(' '.join('%.3f' % ii for ii in macro_stats) + '\n')
 

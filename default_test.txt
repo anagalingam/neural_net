@@ -1,0 +1,4 @@
+datasets/drugs/weights/trained.txt
+datasets/drugs/data/test.txt
+datasets/drugs/result/results.txt
+

@@ -124,10 +124,10 @@ for epoch in range(0, num_epochs):
 ## Write the trained weights output file
 
 with open(resFile, 'w') as file:
-    file.write(' '.join('%s' % ii for ii in initObj[0]))
+    file.write(' '.join('%s' % ii for ii in initObj[0]) + '\n')
     for hidden_node in range(0, initObj[0][1]):
-        file.write('\n' + ' '.join('%.3f' % ii for ii in in2h_weights[hidden_node]))
+        file.write(' '.join('%.3f' % ii for ii in in2h_weights[hidden_node]) + '\n')
     for out_node in range(0, initObj[0][2]):
-        file.write('\n' + ' '.join('%.3f' % ii for ii in h2o_weights[out_node]))
+        file.write(' '.join('%.3f' % ii for ii in h2o_weights[out_node]) + '\n')
 
 
